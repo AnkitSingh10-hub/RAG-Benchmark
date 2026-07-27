@@ -8,7 +8,7 @@ from evaluation.test import TestQuestion, load_tests
 # To evaluate the LangChain-free version instead, comment out the import
 # above and uncomment this one (same function signatures: answer_question
 # and fetch_context are drop-in compatible):
-from pro_implementation.answer import answer_question, fetch_context
+from pro_implementation.answer import answer_question, fetch_context, RERANK_TOP_N
 from openai import OpenAI
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -136,7 +136,7 @@ def call_fetch_context(question: str):
     return fetch_context(question)
 
 
-def evaluate_retrieval(test: TestQuestion, k: int = 8) -> RetrievalEval:
+def evaluate_retrieval(test: TestQuestion, k: int = RERANK_TOP_N) -> RetrievalEval:
     retrieved_docs = call_fetch_context(test.question)
     mrr_scores = [calculate_mrr(keyword, retrieved_docs) for keyword in test.keywords]
     avg_mrr = sum(mrr_scores) / len(mrr_scores) if mrr_scores else 0.0

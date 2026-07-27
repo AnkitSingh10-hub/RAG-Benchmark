@@ -22,7 +22,7 @@ AZURE_ENDPOINT = (
 DEFAULT_MODEL = "gpt-5.6-luna"
 
 RETRIEVAL_K = 25  # wider net for the embedding search
-RERANK_TOP_N = 8  # what actually reaches the RAG prompt
+RERANK_TOP_N = 6  # what actually reaches the RAG prompt
 
 
 # Azure AI Foundry client - reranking, query rewriting, RAG answers
