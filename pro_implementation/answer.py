@@ -21,7 +21,9 @@ AZURE_ENDPOINT = (
 # Generation/rerank/query-rewrite model — Azure AI Foundry (gpt-5.6-luna).
 DEFAULT_MODEL = "gpt-5.6-luna"
 
-RETRIEVAL_K = 10
+RETRIEVAL_K = 25  # wider net for the embedding search
+RERANK_TOP_N = 8  # what actually reaches the RAG prompt
+
 
 # Azure AI Foundry client - reranking, query rewriting, RAG answers
 client = OpenAI(
@@ -102,7 +104,8 @@ Reply only with the list of ranked chunk ids, nothing else. Include all the chun
 
 def fetch_context(question: str) -> list[Result]:
     chunks = fetch_context_unranked(question)
-    return rerank(question, chunks)
+    reranked = rerank(question, chunks)
+    return reranked[:RERANK_TOP_N]
 
 
 def make_rag_message(

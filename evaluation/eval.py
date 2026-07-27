@@ -107,7 +107,7 @@ def call_fetch_context(question: str):
     return fetch_context(question)
 
 
-def evaluate_retrieval(test: TestQuestion, k: int = 10) -> RetrievalEval:
+def evaluate_retrieval(test: TestQuestion, k: int = 8) -> RetrievalEval:
     retrieved_docs = call_fetch_context(test.question)
     mrr_scores = [calculate_mrr(keyword, retrieved_docs) for keyword in test.keywords]
     avg_mrr = sum(mrr_scores) / len(mrr_scores) if mrr_scores else 0.0
