@@ -16,8 +16,16 @@ MRR_GREEN = 0.9
 MRR_AMBER = 0.75
 NDCG_GREEN = 0.9
 NDCG_AMBER = 0.75
+PRECISION_GREEN = 0.6
+PRECISION_AMBER = 0.4
+RECALL_GREEN = 0.8
+RECALL_AMBER = 0.6
 COVERAGE_GREEN = 90.0
 COVERAGE_AMBER = 75.0
+
+# Low-recall warning banner thresholds
+RECALL_LOW_THRESHOLD = 0.5  # recall@k below this counts as "low" for a single test
+LOW_RECALL_WARN_PCT = 20.0  # warn if >= this % of tests are "low recall"
 
 # Color coding thresholds - Answer (1-5 scale)
 ANSWER_GREEN = 4.5
@@ -40,6 +48,20 @@ def get_color(value: float, metric_type: str) -> str:
         if value >= NDCG_GREEN:
             return "green"
         elif value >= NDCG_AMBER:
+            return "orange"
+        else:
+            return "red"
+    elif metric_type == "precision":
+        if value >= PRECISION_GREEN:
+            return "green"
+        elif value >= PRECISION_AMBER:
+            return "orange"
+        else:
+            return "red"
+    elif metric_type == "recall":
+        if value >= RECALL_GREEN:
+            return "green"
+        elif value >= RECALL_AMBER:
             return "orange"
         else:
             return "red"
@@ -87,18 +109,27 @@ def run_retrieval_evaluation(progress=gr.Progress()):
     """Run retrieval evaluation and yield updates."""
     total_mrr = 0.0
     total_ndcg = 0.0
+    total_precision = 0.0
+    total_recall = 0.0
     total_coverage = 0.0
     category_mrr = defaultdict(list)
     details = []
+    low_recall_tests = []
     count = 0
 
     for test, result, prog_value in evaluate_all_retrieval():
         count += 1
         total_mrr += result.mrr
         total_ndcg += result.ndcg
+        total_precision += result.precision_at_k
+        total_recall += result.recall_at_k
         total_coverage += result.keyword_coverage
 
         category_mrr[test.category].append(result.mrr)
+
+        is_low_recall = result.recall_at_k < RECALL_LOW_THRESHOLD
+        if is_low_recall:
+            low_recall_tests.append(test.question)
 
         details.append(
             {
@@ -106,6 +137,9 @@ def run_retrieval_evaluation(progress=gr.Progress()):
                 "Category": test.category,
                 "MRR": result.mrr,
                 "nDCG": result.ndcg,
+                "Precision@k": result.precision_at_k,
+                "Recall@k": result.recall_at_k,
+                "Low Recall": "⚠️" if is_low_recall else "",
                 "Keywords Found": result.keywords_found,
                 "Total Keywords": result.total_keywords,
                 "Keyword Coverage (%)": result.keyword_coverage,
@@ -118,14 +152,34 @@ def run_retrieval_evaluation(progress=gr.Progress()):
     # Calculate final averages
     avg_mrr = total_mrr / count
     avg_ndcg = total_ndcg / count
+    avg_precision = total_precision / count
+    avg_recall = total_recall / count
     avg_coverage = total_coverage / count
+    low_recall_pct = (len(low_recall_tests) / count * 100) if count > 0 else 0.0
+
+    # Build the low-recall warning banner (only shown if the pattern is real)
+    warning_html = ""
+    if low_recall_pct >= LOW_RECALL_WARN_PCT:
+        warning_html = f"""
+        <div style="margin-top: 15px; padding: 12px; background-color: #fff3cd; border-radius: 5px; border-left: 5px solid #e0a800;">
+            <span style="font-size: 14px; color: #856404;">
+                ⚠️ <strong>{len(low_recall_tests)}/{count} tests ({low_recall_pct:.0f}%)</strong>
+                have Recall@k below {RECALL_LOW_THRESHOLD} — relevant chunks were retrieved
+                but didn't make it into the top-k sent to the LLM.
+                Consider raising <code>RETRIEVAL_K</code> or <code>RERANK_TOP_N</code>.
+            </span>
+        </div>
+        """
 
     # Create final summary metrics HTML
     final_html = f"""
     <div style="padding: 0;">
         {format_metric_html("Mean Reciprocal Rank (MRR)", avg_mrr, "mrr")}
         {format_metric_html("Normalized DCG (nDCG)", avg_ndcg, "ndcg")}
+        {format_metric_html("Precision@k", avg_precision, "precision")}
+        {format_metric_html("Recall@k", avg_recall, "recall")}
         {format_metric_html("Keyword Coverage", avg_coverage, "coverage", is_percentage=True)}
+        {warning_html}
         <div style="margin-top: 20px; padding: 10px; background-color: #d4edda; border-radius: 5px; text-align: center; border: 1px solid #c3e6cb;">
             <span style="font-size: 14px; color: #155724; font-weight: bold;">✓ Evaluation Complete: {count} tests</span>
         </div>
@@ -144,7 +198,10 @@ def run_retrieval_evaluation(progress=gr.Progress()):
         "Tests Run": count,
         "Average MRR": avg_mrr,
         "Average nDCG": avg_ndcg,
+        "Average Precision@k": avg_precision,
+        "Average Recall@k": avg_recall,
         "Average Keyword Coverage (%)": avg_coverage,
+        "Low Recall Tests": f"{len(low_recall_tests)}/{count} ({low_recall_pct:.0f}%)",
     }
 
     return final_html, df, summary, df, pd.DataFrame(details)

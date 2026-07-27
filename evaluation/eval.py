@@ -55,6 +55,8 @@ class RetrievalEval(BaseModel):
 
     mrr: float = Field(description="Mean Reciprocal Rank")
     ndcg: float = Field(description="Normalized Discounted Cumulative Gain")
+    precision_at_k: float = Field(description="Precision at k")
+    recall_at_k: float = Field(description="Recall at k")
     keywords_found: int = Field(description="Number of keywords found")
     total_keywords: int = Field(description="Total number of keywords")
     keyword_coverage: float = Field(description="Percentage of keywords found")
@@ -69,7 +71,7 @@ class AnswerEval(BaseModel):
     relevance: float = Field(description="1 to 5 scale")
 
 
-# --- Math Helper Functions (Unchanged) ---
+# --- Math Helper Functions ---
 
 
 def calculate_mrr(keyword: str, retrieved_docs: list) -> float:
@@ -99,6 +101,33 @@ def calculate_ndcg(keyword: str, retrieved_docs: list, k: int = 10) -> float:
     return dcg / idcg if idcg > 0 else 0.0
 
 
+def calculate_precision_at_k(keyword: str, retrieved_docs: list, k: int) -> float:
+    """Of the top-k retrieved docs, what fraction actually contain the keyword."""
+    keyword_lower = keyword.lower()
+    top_k = retrieved_docs[:k]
+    if not top_k:
+        return 0.0
+    relevant_count = sum(
+        1 for doc in top_k if keyword_lower in doc.page_content.lower()
+    )
+    return relevant_count / len(top_k)
+
+
+def calculate_recall_at_k(keyword: str, retrieved_docs: list, k: int) -> float:
+    """Of all docs in the full retrieved set that contain the keyword, what
+    fraction made it into the top-k that's actually sent to the LLM."""
+    keyword_lower = keyword.lower()
+    total_relevant = sum(
+        1 for doc in retrieved_docs if keyword_lower in doc.page_content.lower()
+    )
+    if total_relevant == 0:
+        return 0.0
+    relevant_in_top_k = sum(
+        1 for doc in retrieved_docs[:k] if keyword_lower in doc.page_content.lower()
+    )
+    return relevant_in_top_k / total_relevant
+
+
 # --- core Logic Functions ---
 
 
@@ -115,6 +144,17 @@ def evaluate_retrieval(test: TestQuestion, k: int = 8) -> RetrievalEval:
         calculate_ndcg(keyword, retrieved_docs, k) for keyword in test.keywords
     ]
     avg_ndcg = sum(ndcg_scores) / len(ndcg_scores) if ndcg_scores else 0.0
+    precision_scores = [
+        calculate_precision_at_k(keyword, retrieved_docs, k)
+        for keyword in test.keywords
+    ]
+    avg_precision = (
+        sum(precision_scores) / len(precision_scores) if precision_scores else 0.0
+    )
+    recall_scores = [
+        calculate_recall_at_k(keyword, retrieved_docs, k) for keyword in test.keywords
+    ]
+    avg_recall = sum(recall_scores) / len(recall_scores) if recall_scores else 0.0
     keywords_found = sum(1 for score in mrr_scores if score > 0)
     total_keywords = len(test.keywords)
     keyword_coverage = (
@@ -124,6 +164,8 @@ def evaluate_retrieval(test: TestQuestion, k: int = 8) -> RetrievalEval:
     return RetrievalEval(
         mrr=avg_mrr,
         ndcg=avg_ndcg,
+        precision_at_k=avg_precision,
+        recall_at_k=avg_recall,
         keywords_found=keywords_found,
         total_keywords=total_keywords,
         keyword_coverage=keyword_coverage,
