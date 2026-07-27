@@ -11,18 +11,22 @@ from .models import Result
 
 load_dotenv(override=True)
 
-DB_NAME = str(Path(__file__).parent.parent / "preprocessed_db")
+DB_NAME = str(Path(__file__).parent / "preprocessed_db")
 COLLECTION_NAME = "docs"  # must match ingest.py exactly
 
-# Generation/rerank/query-rewrite model — Mistral direct API (not Azure).
-DEFAULT_MODEL = "mistral-large-2512"
+AZURE_ENDPOINT = (
+    "https://ankitsinghtheweeknd691-6608-reso.services.ai.azure.com/openai/v1"
+)
+
+# Generation/rerank/query-rewrite model — Azure AI Foundry (gpt-5.6-luna).
+DEFAULT_MODEL = "gpt-5.6-luna"
 
 RETRIEVAL_K = 10
 
-# Client for chat completions (Mistral direct API)
+# Azure AI Foundry client - reranking, query rewriting, RAG answers
 client = OpenAI(
-    api_key=os.getenv("MISTRIAL_API_KEY"),
-    base_url="https://api.mistral.ai/v1",
+    base_url=AZURE_ENDPOINT,
+    api_key=os.getenv("AZURE_FOUNDRY_API_KEY"),
 )
 
 chroma = PersistentClient(path=DB_NAME)
@@ -48,10 +52,7 @@ With this context, please answer the user's question. Be accurate, relevant and 
 
 
 def fetch_context_unranked(question: str) -> list[Result]:
-    query_embedding = embed_query(
-        question,
-        embedding_model="e5",
-    )
+    query_embedding = embed_query(question)
     results = collection.query(
         query_embeddings=[query_embedding], n_results=RETRIEVAL_K
     )
@@ -79,6 +80,9 @@ Reply only with the list of ranked chunk ids, nothing else. Include all the chun
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
+    schema = RankOrder.model_json_schema()
+    schema["additionalProperties"] = False
+
     response = client.chat.completions.create(
         model=DEFAULT_MODEL,
         messages=messages,
@@ -86,7 +90,7 @@ Reply only with the list of ranked chunk ids, nothing else. Include all the chun
             "type": "json_schema",
             "json_schema": {
                 "name": "RankOrder",
-                "schema": RankOrder.model_json_schema(),
+                "schema": schema,
                 "strict": True,
             },
         },

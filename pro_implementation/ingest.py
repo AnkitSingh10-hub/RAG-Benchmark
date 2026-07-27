@@ -6,8 +6,10 @@ from tqdm import tqdm
 from .chunking import create_chunks
 from .embeddings import embed_texts
 
-DB_NAME = str(Path(__file__).parent.parent / "preprocessed_db")
+DB_NAME = str(Path(__file__).parent / "preprocessed_db")
 COLLECTION_NAME = "docs"
+# knowledge_base lives at the project root, shared with implementation/ —
+# only preprocessed_db and chunk_cache are kept local to pro_implementation/
 KNOWLEDGE_BASE = str(Path(__file__).parent.parent / "knowledge_base")
 BATCH_SIZE = 32
 
@@ -30,11 +32,7 @@ def fetch_documents() -> list[dict]:
     return documents
 
 
-def create_embeddings(
-    chunks,
-    embedding_model: str = "qwen",
-    batch_size: int = BATCH_SIZE,
-):
+def create_embeddings(chunks, batch_size: int = BATCH_SIZE):
     chroma = PersistentClient(path=DB_NAME)
     if COLLECTION_NAME in [c.name for c in chroma.list_collections()]:
         chroma.delete_collection(COLLECTION_NAME)
@@ -44,12 +42,7 @@ def create_embeddings(
     vectors = []
     for i in tqdm(range(0, len(texts), batch_size)):
         batch = texts[i : i + batch_size]
-        vectors.extend(
-            embed_texts(
-                batch,
-                embedding_model=embedding_model,
-            )
-        )
+        vectors.extend(embed_texts(batch))
 
     collection = chroma.get_or_create_collection(COLLECTION_NAME)
 
@@ -64,8 +57,5 @@ def create_embeddings(
 if __name__ == "__main__":
     documents = fetch_documents()
     chunks = create_chunks(documents)
-    create_embeddings(
-        chunks,
-        embedding_model="e5",
-    )
+    create_embeddings(chunks)
     print("Ingestion complete")

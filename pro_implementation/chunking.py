@@ -20,13 +20,14 @@ load_dotenv(override=True)
 # Chunking here is done BY an LLM (Mistral), not by character/heading
 # splitting — the model reads a whole document and decides how to carve it
 # into overlapping, self-describing chunks.
-DEFAULT_MODEL = "mistral-medium-latest"
+MISTRAL_MODEL = "mistral-medium-latest"  # used ONLY for chunking
 
 AVERAGE_CHUNK_SIZE = 500
-CACHE_DIR = Path(__file__).parent.parent / "chunk_cache"
+CACHE_DIR = Path(__file__).parent / "chunk_cache"
 CACHE_DIR.mkdir(exist_ok=True)
 
-client = OpenAI(
+# Mistral client - CHUNKING ONLY
+mistral_client = OpenAI(
     api_key=os.getenv("MISTRIAL_API_KEY"),
     base_url="https://api.mistral.ai/v1",
 )
@@ -101,8 +102,8 @@ def get_cache_path(document: dict) -> Path:
     reraise=True,  # after exhausting retries, raise the original RateLimitError
 )
 def call_chat_completion(messages: list[dict]):
-    return client.chat.completions.create(
-        model=DEFAULT_MODEL,
+    return mistral_client.chat.completions.create(
+        model=MISTRAL_MODEL,
         messages=messages,
         response_format={
             "type": "json_schema",

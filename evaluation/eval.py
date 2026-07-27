@@ -28,7 +28,7 @@ retry_on_rate_limit = retry_if_exception_type(RateLimitError)
 load_dotenv(override=True)
 
 AZURE_ENDPOINT = (
-    "https://ankitsinghtheweeknd691-9348-reso.services.ai.azure.com/openai/v1"
+    "https://ankitsinghtheweeknd691-6608-reso.services.ai.azure.com/openai/v1"
 )
 
 # LLM_MODEL = "DeepSeek-V3.2"
@@ -36,10 +36,9 @@ AZURE_ENDPOINT = (
 # LLM_MODEL = "DeepSeek-V4-Pro"
 
 # LLM_MODEL = "Mistral-Large-3"
-# LLM_MODEL = "DeepSeek-V4-Flash"
-LLM_MODEL = "openai--gpt-oss-20b"
+LLM_MODEL = "DeepSeek-V4-Flash"
+# LLM_MODEL = "gpt-chat-latest"
 
-db_name = "vector_database"
 
 # Increased timeout slightly for parallel processing overhead
 open_ai = OpenAI(

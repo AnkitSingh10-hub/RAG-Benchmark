@@ -1,0 +1,44 @@
+{
+  "chunks": [
+    {
+      "headline": "Contract Overview and Parties Involved",
+      "summary": "This chunk introduces the contract between Insurellm, Inc. and Heritage Life Assurance, including the contract date, number, and the parties involved. It also begins the terms section with the scope of services.",
+      "original_text": "# Contract with Heritage Life Assurance for Lifellm\n\n**Contract Date:** February 12, 2025\n**Contract Number:** LF-2025-0045\n\n---\n\n## Terms\n\n1. **Parties Involved**: This contract is entered into between Insurellm, Inc. (\"Provider\") and Heritage Life Assurance (\"Client\").\n\n2. **Scope of Services**: Provider agrees to deliver Lifellm Growth Tier, including AI-powered underwriting, predictive risk modeling, digital health integration, and policy management capabilities.\n\n3. **Payment Terms**: Client shall pay $7,500 per month for 18 months. Total contract value: $135,000. Payments due on the 1st via ACH."
+    },
+    {
+      "headline": "Payment Terms, Policy Volume, and Contract Duration",
+      "summary": "This chunk covers the payment terms, policy volume supported by the Growth Tier, and the contract duration. It also introduces the renewal section.",
+      "original_text": "3. **Payment Terms**: Client shall pay $7,500 per month for 18 months. Total contract value: $135,000. Payments due on the 1st via ACH.\n\n4. **Policy Volume**: Growth Tier supports up to 10,000 active policies. Heritage currently administers 6,200 policies.\n\n5. **Contract Duration**: 18 months commencing February 12, 2025 and ending August 11, 2026.\n\n## Renewal\n\n1. **Automatic Renewal**: This agreement automatically renews for 12-month terms unless either party provides 45-day written notice of non-renewal."
+    },
+    {
+      "headline": "Renewal Terms and Pricing Adjustments",
+      "summary": "This chunk details the automatic renewal terms, including the notice period and pricing adjustments. It also begins the features section with AI-powered underwriting.",
+      "original_text": "## Renewal\n\n1. **Automatic Renewal**: This agreement automatically renews for 12-month terms unless either party provides 45-day written notice of non-renewal.\n\n2. **Renewal Pricing**: Pricing adjustments communicated 75 days prior to renewal, capped at 8% annual increase.\n\n## Features\n\n1. **AI-Powered Underwriting**: Heritage Life Assurance will benefit from:\n   - Accelerated underwriting with 65% instant decisions\n   - Medical record analysis and risk scoring\n   - Mortality prediction models\n   - Automated decisioning for face amounts up to $750,000"
+    },
+    {
+      "headline": "Predictive Risk Modeling and Digital Health Integration",
+      "summary": "This chunk covers the predictive risk modeling and digital health integration features provided by Lifellm Growth Tier.",
+      "original_text": "2. **Predictive Risk Modeling**: Advanced analytics considering:\n   - Comprehensive medical histories\n   - Prescription drug databases\n   - Lifestyle and occupation factors\n   - Family history and genetic markers\n   - Predictive health trajectories\n\n3. **Digital Health Integration**:\n   - Wearable device connections (Fitbit, Apple Watch)\n   - Health app integrations\n   - Wellness program platform\n   - Premium discount automation\n   - Activity tracking and rewards"
+    },
+    {
+      "headline": "Automated Policy Management and Customer Portal",
+      "summary": "This chunk details the automated policy management and customer portal features, including self-service options for policyholders.",
+      "original_text": "4. **Automated Policy Management**:\n   - Digital policy issuance\n   - Beneficiary updates and management\n   - Premium billing integration\n   - Policy conversion processing\n   - Lapse and reinstatement automation\n\n5. **Customer Portal**: Policyholder self-service including:\n   - 24/7 policy access\n   - Digital insurance cards\n   - Claims submission\n   - Premium payment processing\n   - Coverage updates"
+    },
+    {
+      "headline": "Advanced Reporting and Support Overview",
+      "summary": "This chunk covers the advanced reporting features and introduces the support section, including technical support and training.",
+      "original_text": "6. **Advanced Reporting**:\n   - Application conversion analytics\n   - Underwriting productivity metrics\n   - Policy persistency reporting\n   - Agent performance dashboards\n\n## Support\n\n1. **Technical Support**: Heritage will receive priority support:\n   - Monday-Friday 7 AM - 7 PM EST\n   - Email, phone, and chat support\n   - 8-hour response time for critical issues\n   - Online knowledge base\n\n2. **Training**: Training program includes:\n   - 3-week implementation\n   - Training for up to 15 staff members (25 hours)"
+    },
+    {
+      "headline": "Training, Updates, and Account Management",
+      "summary": "This chunk details the training program, updates, and account management services provided under the contract.",
+      "original_text": "2. **Training**: Training program includes:\n   - 3-week implementation\n   - Training for up to 15 staff members (25 hours)\n   - Quarterly webinars on platform updates\n   - Online training library access\n\n3. **Updates**: Monthly platform enhancements and security patches. Maintenance windows: Sunday 1 AM - 5 AM EST.\n\n4. **Account Management**: Named customer success manager with quarterly business reviews."
+    },
+    {
+      "headline": "Signatures and Contract Conclusion",
+      "summary": "This chunk includes the signatures of the representatives from both Insurellm, Inc. and Heritage Life Assurance, as well as the concluding statement about the contract's purpose.",
+      "original_text": "---\n\n**Signatures:**\n\n**Insurellm, Inc.**\nMichael Torres, Chief Revenue Officer\nDate: February 12, 2025\n\n**Heritage Life Assurance**\nMelissa Zhang, VP of Operations\nDate: February 12, 2025\n\n---\n\nThis contract enables Heritage Life Assurance to leverage Lifellm's AI technology for modernized life insurance underwriting and administration."
+    }
+  ]
+}
