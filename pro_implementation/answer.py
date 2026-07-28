@@ -22,7 +22,7 @@ AZURE_ENDPOINT = (
 DEFAULT_MODEL = "gpt-5.6-luna"
 
 RETRIEVAL_K = 25  # wider net for the embedding search
-RERANK_TOP_N = 6  # what actually reaches the RAG prompt
+RERANK_TOP_N = 5  # what actually reaches the RAG prompt
 
 
 # Azure AI Foundry client - reranking, query rewriting, RAG answers
@@ -99,6 +99,11 @@ Reply only with the list of ranked chunk ids, nothing else. Include all the chun
     )
     reply = response.choices[0].message.content
     order = RankOrder.model_validate_json(reply).order
+    print("=" * 80)
+    print(question)
+    print("Expected:", len(chunks))
+    print("Returned:", order)
+    print("=" * 80)
     return [chunks[i - 1] for i in order]
 
 
