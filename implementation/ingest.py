@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 
-from chunking import get_chunker
-from embeddings import get_embedder
+from .chunking import get_chunker
+from .embeddings import get_embedder
 
-DB_NAME = str(Path(__file__).parent.parent / "vector_database")
+DB_NAME = str(Path(__file__).parent / "vector_database")
 KNOWLEDGE_BASE = str(Path(__file__).parent.parent / "knowledge_base")
 
 # Swap these to try different embedding models / chunking strategies.
@@ -18,7 +18,7 @@ KNOWLEDGE_BASE = str(Path(__file__).parent.parent / "knowledge_base")
 # "heading", "character", "recursive_character").
 # NOTE: whatever EMBEDDING_STRATEGY you use here must match the one in
 # answer.py, or queries will be embedded differently than the documents.
-EMBEDDING_STRATEGY = "gte"
+EMBEDDING_STRATEGY = "openai-3-large"
 CHUNKING_STRATEGY = "doc_type"
 
 load_dotenv(override=True)

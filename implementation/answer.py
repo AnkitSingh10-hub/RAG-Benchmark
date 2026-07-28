@@ -28,11 +28,11 @@ AZURE_ENDPOINT = (
 LLM_MODEL = "gpt-5.6-luna"
 
 
-DB_NAME = str(Path(__file__).parent.parent / "vector_database")
+DB_NAME = str(Path(__file__).parent / "vector_database")
 
 # Must match EMBEDDING_STRATEGY in ingest.py — the vector store was built
 # with that embedder, and mismatching here silently breaks retrieval.
-EMBEDDING_STRATEGY = "gte"
+EMBEDDING_STRATEGY = "openai-3-large"
 
 embeddings = get_embedder(EMBEDDING_STRATEGY)()
 

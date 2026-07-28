@@ -3,9 +3,18 @@ import os
 from langchain_core.embeddings import Embeddings
 from azure.ai.inference import EmbeddingsClient
 from azure.core.credentials import AzureKeyCredential
+from openai import OpenAI
 
 AZURE_EMBEDDING_ENDPOINT = (
     "https://ankitsinghtheweeknd691-9348-reso.services.ai.azure.com/models"
+)
+
+# text-embedding-3-large is deployed on the same Azure AI Foundry resource
+# pro_implementation/embeddings.py talks to (a different endpoint from the
+# one above), reached via the plain OpenAI SDK rather than
+# azure.ai.inference.EmbeddingsClient.
+AZURE_OPENAI_ENDPOINT = (
+    "https://ankitsinghtheweeknd691-6608-reso.services.ai.azure.com/openai/v1"
 )
 
 
@@ -194,6 +203,49 @@ class AzureGTEEmbeddings(Embeddings):
         return response.data[0].embedding
 
 
+class AzureOpenAI3LargeEmbeddings(Embeddings):
+    """LangChain-compatible wrapper around Azure AI Foundry's
+    text-embedding-3-large, using the plain OpenAI SDK client (same code
+    path as pro_implementation/embeddings.py's embed_texts/embed_query)
+    rather than azure.ai.inference.EmbeddingsClient.
+
+    Like the other OpenAI-family embedding models, text-embedding-3-large
+    does NOT use a "passage:"/"query:" or instruction-style prefixing
+    scheme — texts and queries are both embedded as-is. embed_documents
+    and embed_query are symmetric.
+
+    Must be used identically at ingest time and query time (same model,
+    same deployment) or retrieval quality silently degrades.
+    """
+
+    def __init__(
+        self,
+        endpoint: str,
+        api_key: str,
+        model: str = "text-embedding-3-large",
+        batch_size: int = 32,
+        verbose: bool = False,
+    ):
+        self.client = OpenAI(base_url=endpoint, api_key=api_key)
+        self.model = model
+        self.batch_size = batch_size
+        self.verbose = verbose
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        all_embeddings = []
+        for i in range(0, len(texts), self.batch_size):
+            batch = texts[i : i + self.batch_size]
+            response = self.client.embeddings.create(model=self.model, input=batch)
+            all_embeddings.extend(item.embedding for item in response.data)
+            if self.verbose:
+                print(f"  embedded {min(i + self.batch_size, len(texts))}/{len(texts)}")
+        return all_embeddings
+
+    def embed_query(self, text: str) -> list[float]:
+        response = self.client.embeddings.create(model=self.model, input=text)
+        return response.data[0].embedding
+
+
 # ----------------------------------------------------------------------
 # Strategy 1: Azure AI Foundry e5-large-v2
 # ----------------------------------------------------------------------
@@ -275,6 +327,28 @@ def get_gte_embeddings(verbose: bool = False) -> AzureGTEEmbeddings:
 
 
 # ----------------------------------------------------------------------
+# Strategy 5: Azure AI Foundry text-embedding-3-large
+# ----------------------------------------------------------------------
+
+
+def get_openai_3_large_embeddings(verbose: bool = False) -> AzureOpenAI3LargeEmbeddings:
+    """Azure AI Foundry text-embedding-3-large, batch size 32.
+
+    Reached via the plain OpenAI SDK client against AZURE_OPENAI_ENDPOINT
+    (same endpoint/pattern pro_implementation/embeddings.py uses), not
+    azure.ai.inference.EmbeddingsClient. No passage:/query: prefixing —
+    used as-is on both the ingest and query side.
+    """
+    return AzureOpenAI3LargeEmbeddings(
+        endpoint=AZURE_OPENAI_ENDPOINT,
+        api_key=os.getenv("AZURE_FOUNDRY_API_KEY"),
+        model="text-embedding-3-large",
+        batch_size=32,
+        verbose=verbose,
+    )
+
+
+# ----------------------------------------------------------------------
 # Add more strategies here as you try them, e.g.:
 #
 # def get_bge_embeddings(verbose: bool = False) -> AzureE5Embeddings:
@@ -298,6 +372,7 @@ EMBEDDERS = {
     "qwen3": get_qwen3_embeddings,
     "openai-3-small": get_openai_3_small_embeddings,
     "gte": get_gte_embeddings,
+    "openai-3-large": get_openai_3_large_embeddings,
 }
 
 
