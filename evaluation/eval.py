@@ -3,11 +3,7 @@ import math
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from evaluation.test import TestQuestion, load_tests
-# from implementation.answer import answer_question, fetch_context
 
-# To evaluate the LangChain-free version instead, comment out the import
-# above and uncomment this one (same function signatures: answer_question
-# and fetch_context are drop-in compatible):
 from pro_implementation.answer import answer_question, fetch_context, RERANK_TOP_N
 from openai import OpenAI
 import os
@@ -37,7 +33,6 @@ AZURE_ENDPOINT = (
 
 # LLM_MODEL = "Mistral-Large-3"
 LLM_MODEL = "DeepSeek-V4-Flash"
-# LLM_MODEL = "gpt-chat-latest"
 
 
 # Increased timeout slightly for parallel processing overhead

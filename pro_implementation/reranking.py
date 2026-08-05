@@ -15,7 +15,6 @@ RERANKER switch at the top of that file.
 """
 
 import os
-
 import requests
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -26,7 +25,6 @@ AZURE_ENDPOINT = (
     "https://ankitsinghtheweeknd691-6608-reso.services.ai.azure.com/openai/v1"
 )
 
-# --- rerank_llm config --------------------------------------------------
 
 DEFAULT_MODEL = "gpt-5.6-luna"
 
@@ -42,13 +40,8 @@ class RankOrder(BaseModel):
     )
 
 
-# --- rerank_cohere config -------------------------------------------------
-
-# Cohere Rerank v4, deployed as a model inside this same Azure AI Foundry
-# resource (not a separate Cohere account) - reuses AZURE_FOUNDRY_API_KEY.
 COHERE_RERANK_URL = "https://ankitsinghtheweeknd691-6608-reso.services.ai.azure.com/providers/cohere/v2/rerank"
-# IMPORTANT: must exactly match your deployment name in Azure AI Foundry -
-# check the "Get endpoint" page for that deployment if this 404s/500s.
+
 COHERE_RERANK_MODEL = "Cohere-rerank-v4.0-pro"
 
 
