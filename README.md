@@ -41,7 +41,7 @@ were implemented and evaluated:
 
 1. **Chunking strategy** — multiple chunking approaches were implemented and
    compared (doc-type-aware heading splitting, plain heading splitting,
-   character-based splitting, recursive character splitting).
+   character-based splitting, recursive character splitting), semantic chunking from LLM.
 2. **Encoder (embedding model) selection** — several embedding models were
    evaluated against the test set to select the best-performing encoder.
 3. **Prompt improvements** — system prompts were refined to include general
@@ -49,11 +49,11 @@ were implemented and evaluated:
    conversation history.
 4. **LLM-based document pre-processing** — an LLM was used to generate chunks
    directly from source documents (headline, summary, and original text),
-   rather than relying purely on rule-based splitting.
+   rather than relying purely on rule-based splitting. 
 5. **Query rewriting** — an LLM rewrites the user's raw question into a more
    targeted retrieval query before the vector search step.
-6. **Re-ranking** — an LLM reranks a wider initial retrieval set before the
-   top results are passed into the generation prompt.
+6. **Re-ranking** — Uses LLM as well as dedicated reranking models. An LLM reranks a wider initial retrieval set before the
+   top results are passed into the generation prompt. This also uses dedicated reranker called Cohere for cross encoding.
 
 Query expansion (turning one question into multiple retrieval queries) was
 scoped as a technique but is not yet implemented in either pipeline.
